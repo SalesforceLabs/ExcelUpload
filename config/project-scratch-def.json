@@ -1,0 +1,13 @@
+{
+  "orgName": "Excel Upload",
+  "edition": "Developer",
+  "country": "US",
+  "language": "en-US",
+  "adminEmail": "meckert@salesforce.com",
+  "settings": {
+    "lightningExperienceSettings": {
+      "enableS1DesktopEnabled": true
+    }
+  },
+  "features": []
+}
