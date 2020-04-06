@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>48.0</apiVersion>
     <isExposed>true</isExposed>
@@ -9,8 +9,30 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__RecordPage">
-            <property name="title" label="Title" type="String" default="Upload Excel File"/>
-            <property name="label" label="Label" type="String" default="Excel File"/>
+            <property name="title" label="Title" type="String" default="Upload Excel File" />
+            <property name="label" label="Label" type="String" default="Excel File" />
+
+            <property name="field1" label="Record Field 1" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
+            <property name="address1" label="Excel Address 1" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
+            <property name="field2" label="Record Field 2" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
+            <property name="address2" label="Excel Address 2" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
+            <property name="field3" label="Record Field 3" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
+            <property name="address3" label="Excel Address 3" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
+            <property name="field4" label="Record Field 4" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
+            <property name="address4" label="Excel Address 4" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
+            <property name="field5" label="Record Field 5" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
+            <property name="address5" label="Excel Address 5" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
+            <property name="field6" label="Record Field 6" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
+            <property name="address6" label="Excel Address 6" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
+            <property name="field7" label="Record Field 7" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
+            <property name="address7" label="Excel Address 7" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
+            <property name="field8" label="Record Field 8" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
+            <property name="address8" label="Excel Address 8" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
+            <property name="field9" label="Record Field 9" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
+            <property name="address9" label="Excel Address 9" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
+            <property name="field10" label="Record Field 10" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
+            <property name="address10" label="Excel Address 10" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
+
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
