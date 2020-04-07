@@ -1,5 +1,5 @@
 import { LightningElement, track, api, wire } from 'lwc';
-import { getRecord, createRecord, updateRecord } from 'lightning/uiRecordApi';
+import { createRecord, updateRecord } from 'lightning/uiRecordApi';
 import { loadScript } from 'lightning/platformResourceLoader';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { readAsBinaryString } from './readFile';
@@ -7,8 +7,6 @@ import SHEETJS_ZIP from '@salesforce/resourceUrl/sheetjs'
 
 /*
 TODO:
-- Add close button / x when error state
-- improve error messages (mainly when parsing Excel file)
 - add test classes (jest)
 - i18n? (Custom Labels etc.)
 */
@@ -77,36 +75,42 @@ export default class ExcelUpload extends LightningElement {
     }
 
     uploadFile(evt) {
-        const recordId = this.recordId;
-        console.log("recordId = " + recordId);        
+        const recordId = this.recordId;               
+        let file;
         
-        if(evt.target.files.length != 1) {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Excel Upload: Error accessing file',
-                    message: evt.target.files.length == 0 ? 'No file received' : 'Multiple files received',
-                    variant: 'error'
-                })
-            ); 
-            return;
-        }        
-        const file = evt.target.files[0];
-        console.log(file);    
+        Promise.resolve(evt.target.files)        
+        .then( files => {
+            console.log(files);
 
-        this.uploading = true;
-        this.uploadStep = "1";
-        this.uploadMessage = 'Reading File';
-        this.uploadDone = false;
-        this.uploadError = false;
-        readAsBinaryString(file)
+            this.uploading = true;
+            this.uploadStep = "1";
+            this.uploadMessage = 'Reading File';
+            this.uploadDone = false;
+            this.uploadError = false;
+
+            if(files.length != 1) {
+                throw new Error("Error accessing file -- " + 
+                    (evt.target.files.length == 0 ? 
+                        'No file received' : 
+                        'Multiple files received'
+                    ));
+            }        
+ 
+            file = files[0];
+            return readAsBinaryString(file);
+        })                
         .then( blob => {
             this.uploadStep = "2";
             this.uploadMessage = 'Extracting Data';
 
-            var workbook = XLSX.read(blob, {type: 'binary'});                
-            
+            let workbook = XLSX.read(blob, {type: 'binary'});    
+            console.log(workbook);
+
+            if(!workbook || !workbook.Workbook) { throw new Error("Cannot read Excel File (incorrect file format?)"); }
+            if(workbook.SheetNames.length < 1) { throw new Error("Excel file does not contain any sheets"); }            
+
             const record = {
-                Id: this.recordId
+                Id: recordId
             };
             
             for(let i=1; i<=10; i++) {
@@ -114,13 +118,23 @@ export default class ExcelUpload extends LightningElement {
                 const address = this["address"+i];
 
                 if(field && field != 'NONE') {
-                    let sheet = workbook.SheetNames[0];
+                    let sheetName = workbook.SheetNames[0];                    
                     if(address.indexOf("!") >= 0) {
                         var parts = address.split("!");
-                        sheet = parts[0]; 
+                        sheetName = parts[0]; 
                         address = parts[1];
                     }
-                    let cell = workbook.Sheets[sheet][address];
+
+                    let sheet = workbook.Sheets[sheetName];
+                    if(!sheet) { 
+                        throw new Error(`Sheet '${sheetName} not found for Excel Address ${i} (value: '${this["address"+i]}')`); 
+                    }
+
+                    let cell = sheet[address];
+                    if(!cell) {
+                        throw new Error(`Cell with address ${address} not found for Excel Address ${i} (value: '${this["address"+i]}')`);
+                    }
+                    
                     record[field] = cell.v;
                 }
             }
@@ -131,11 +145,8 @@ export default class ExcelUpload extends LightningElement {
             return updateRecord({fields: record}).then( () => blob );                        
         })
         .then( blob => {            
-            console.log("recordId = " + recordId);
-            console.log("this.recordId = " + this.recordId);
             this.uploadStep = "4";
             this.uploadMessage = 'Uploading File';
-            console.log("modal changed");
 
             const cv = {
                 Title: file.name,
@@ -143,22 +154,18 @@ export default class ExcelUpload extends LightningElement {
                 VersionData: window.btoa(blob),          
                 FirstPublishLocationId: recordId
             };
-
-            console.log("Trying to create ContentVersion");
+            
             return createRecord({apiName: "ContentVersion", fields: cv})     
         })
-        .then( cv => {
-            console.log("Successfully created ContentVersion");
-            console.log(cv);
-
-            //Unfortunately, the last step won't get a check mark... base component is missing this functionality...
-            //this.uploadStep = "done";
+        .then( _cv => {
+            // Unfortunately, the last step won't get a check mark -- 
+            // the base component <lightning-progress-indicator> is missing this functionality        
             this.uploadMessage = "Done";  
             this.uploadDone = true;       
             return new Promise(function(resolve, _reject){ window.setTimeout(resolve, 1000); });             
         })
         .then( () => {
-            this.uploading = false;
+            this.closeModal();
 
             this.dispatchEvent(
                 new ShowToastEvent({
@@ -174,5 +181,13 @@ export default class ExcelUpload extends LightningElement {
             this.uploadError = true;
             this.uploadMessage = "Error: " + err.message;
         });
+    }
+
+    closeModal() {
+        this.uploading = false;
+        this.uploadStep = 0;
+        this.uploadMessage = '';
+        this.uploadDone = false;
+        this.uploadError = false;       
     }
 }
