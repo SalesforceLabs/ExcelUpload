@@ -1,4 +1,7 @@
-import { LightningElement, track, api, wire } from 'lwc';
+/* eslint-disable no-console */
+/* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
+
+import { LightningElement, track, api } from 'lwc';
 import { createRecord, updateRecord } from 'lightning/uiRecordApi';
 import { loadScript } from 'lightning/platformResourceLoader';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
@@ -53,11 +56,9 @@ export default class ExcelUpload extends LightningElement {
     constructor() {
         super();
 
-        console.log(`field1 = ${this.field1}, address1 = ${this.address1}`);
-
         loadScript(this, SHEETJS_ZIP + '/xlsx.full.min.js')
         .then(() => {
-            if(!XLSX) {
+            if(!window.XLSX) {
                 throw new Error('Error loading SheetJS library (XLSX undefined)');                
             }
             this.ready = true;
@@ -80,17 +81,15 @@ export default class ExcelUpload extends LightningElement {
         
         Promise.resolve(evt.target.files)        
         .then( files => {
-            console.log(files);
-
             this.uploading = true;
             this.uploadStep = "1";
             this.uploadMessage = 'Reading File';
             this.uploadDone = false;
             this.uploadError = false;
 
-            if(files.length != 1) {
+            if(files.length !== 1) {
                 throw new Error("Error accessing file -- " + 
-                    (evt.target.files.length == 0 ? 
+                    (files.length === 0 ? 
                         'No file received' : 
                         'Multiple files received'
                     ));
@@ -103,8 +102,7 @@ export default class ExcelUpload extends LightningElement {
             this.uploadStep = "2";
             this.uploadMessage = 'Extracting Data';
 
-            let workbook = XLSX.read(blob, {type: 'binary'});    
-            console.log(workbook);
+            let workbook = window.XLSX.read(blob, {type: 'binary'});    
 
             if(!workbook || !workbook.Workbook) { throw new Error("Cannot read Excel File (incorrect file format?)"); }
             if(workbook.SheetNames.length < 1) { throw new Error("Excel file does not contain any sheets"); }            
@@ -115,12 +113,12 @@ export default class ExcelUpload extends LightningElement {
             
             for(let i=1; i<=10; i++) {
                 const field = this["field"+i];
-                const address = this["address"+i];
+                let address = this["address"+i];
 
-                if(field && field != 'NONE') {
+                if(field && field !== 'NONE') {
                     let sheetName = workbook.SheetNames[0];                    
                     if(address.indexOf("!") >= 0) {
-                        var parts = address.split("!");
+                        let parts = address.split("!");
                         sheetName = parts[0]; 
                         address = parts[1];
                     }
@@ -162,7 +160,10 @@ export default class ExcelUpload extends LightningElement {
             // the base component <lightning-progress-indicator> is missing this functionality        
             this.uploadMessage = "Done";  
             this.uploadDone = true;       
-            return new Promise(function(resolve, _reject){ window.setTimeout(resolve, 1000); });             
+            return new Promise(function(resolve, _reject){ 
+                // eslint-disable-next-line @lwc/lwc/no-async-operation
+                window.setTimeout(resolve, 1000); 
+            });             
         })
         .then( () => {
             this.closeModal();
@@ -176,8 +177,6 @@ export default class ExcelUpload extends LightningElement {
             );             
         })
         .catch( err => {
-            console.log("Error");
-            console.log(err);
             this.uploadError = true;
             this.uploadMessage = "Error: " + err.message;
         });
