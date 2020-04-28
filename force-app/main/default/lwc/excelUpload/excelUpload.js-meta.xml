@@ -32,7 +32,10 @@
             <property name="address9" label="Excel Address 9" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
             <property name="field10" label="Record Field 10" datasource="apex://FieldPicklist" type="String" description="Pick a record field to be filled from the Excel Cell" />
             <property name="address10" label="Excel Address 10" type="String" description="Specify cell address in Excel file, e.g., 'A1' (uses first worksheet) or 'Sheet1!A1'" />
-
+            <supportedFormFactors>
+                <supportedFormFactor type="Small" />
+                <supportedFormFactor type="Large" />
+            </supportedFormFactors>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
