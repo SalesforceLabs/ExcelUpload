@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2020, salesforce.com, inc.
+ * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+
 /* eslint-disable no-console */
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
 
@@ -8,19 +15,17 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { readAsBinaryString } from './readFile';
 import SHEETJS_ZIP from '@salesforce/resourceUrl/sheetjs'
 
-/*
-TODO:
-- add test classes (jest)
-- i18n? (Custom Labels etc.)
-*/
-
 export default class ExcelUpload extends LightningElement {    
+    // Id of currently displayed record (component is only for display on record pages)
     @api recordId;  
     @api objectApiName;
 
+    // Title and Label displayed in UI
     @api title;
     @api label;
 
+    // Configuration of record fields and the corresponding Excel cell adresses
+    // up to 10 fields are supported; fields may be left blank
     @api field1;
     @api address1;
     @api field2;
@@ -42,6 +47,7 @@ export default class ExcelUpload extends LightningElement {
     @api field10;
     @api address10;
 
+    // state management to display spinners and the modal used while uploading the component
     @track ready = false;
     @track error = false;    
 
@@ -75,6 +81,11 @@ export default class ExcelUpload extends LightningElement {
         });
     }
 
+    // The promise chain for upload a new file will
+    // 1. read the file, 2. parse it and extract the Excel cells and 
+    // update the record, 3. upload the file to the record as "attachment"
+    // (ContentVersion to be more precise), and 4. shortly wait to display
+    // the modal before letting it disappear
     uploadFile(evt) {
         const recordId = this.recordId;               
         let file;
