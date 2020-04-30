@@ -25,4 +25,8 @@ taken over from that Excel Sheet.
 
 # License
 
-See LICENSE file in this repository
+See LICENSE file in this repository.  
+
+This component uses the [SheetJS Community Edition library](https://github.com/SheetJS/sheetjs),
+which is licensed under the Apache License 2.0.  See the LICENSE file in 
+force-app/main/default/staticresources/sheetjs.
